@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Comparison Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #2a2a2a;
+    --nike: #f5f5f5;
+    --nike-acc: #ff4500;
+    --puma: #f5c518;
+    --puma-acc: #ff4500;
+    --text: #f0f0f0;
+    --muted: #666;
+    --green: #00e676;
+    --red: #ff1744;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #fff, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 48px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 300;
+    margin-top: 12px;
+  }
+
+  /* ── SEARCH BAR ── */
+  .search-section {
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s 0.15s ease both;
+  }
+
+  .search-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .brand-inputs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    flex: 1;
+    align-items: center;
+  }
+
+  .brand-input-wrap {
+    position: relative;
+  }
+
+  .brand-input-wrap label {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .brand-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    padding: 16px 20px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .brand-input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green);
+  }
+
+  .brand-input::placeholder {
+    color: var(--muted);
+  }
+
+  .brand-input.input-brand1:focus { border-color: var(--nike); box-shadow: 0 0 0 1px var(--nike); }
+  .brand-input.input-brand2:focus { border-color: var(--puma); box-shadow: 0 0 0 1px var(--puma); }
+
+  .vs-divider {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-align: center;
+    padding-top: 16px;
+  }
+
+  .compare-btn {
+    padding: 16px 40px;
+    background: transparent;
+    border: 1px solid var(--text);
+    color: var(--text);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s;
+    white-space: nowrap;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .compare-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--text);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+
+  .compare-btn:hover { color: #000; }
+  .compare-btn:hover::before { transform: translateX(0); }
+
+  .compare-btn:disabled {
+    border-color: var(--muted);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .compare-btn:disabled::before { display: none; }
+
+  /* Quick pills */
+  .quick-picks {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .quick-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    align-self: center;
+    margin-right: 4px;
+  }
+
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .pill:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(0,230,118,0.05);
+  }
+
+  /* Dynamic title */
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 8vw, 96px);
+    letter-spacing: 6px;
+    line-height: 0.95;
+    margin-bottom: 8px;
+  }
+
+  .brand1-text { color: var(--nike); }
+  .brand2-text { color: var(--puma); }
+  .vs-text { color: var(--muted); font-size: 0.5em; vertical-align: middle; margin: 0 12px; }
+
+  /* Cards Grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 2px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .brand-card {
+    background: var(--surface);
+    padding: 40px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    min-height: 420px;
+  }
+
+  .brand-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .brand-card.card1::after { background: var(--nike); }
+  .brand-card.card2::after { background: var(--puma); }
+
+  .brand-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 6px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand-card.card1 .brand-label { color: var(--nike); }
+  .brand-card.card2 .brand-label { color: var(--puma); }
+
+  .brand-emoji { font-size: 32px; }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface2) 25%, #222 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    height: 16px;
+    margin-bottom: 12px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .product-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .product-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .product-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+    grid-column: 1 / -1;
+  }
+
+  .product-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--green);
+  }
+
+  .product-rating {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--puma);
+    background: rgba(245,197,24,0.1);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .stats-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    margin-bottom: 2px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .stat-item {
+    padding: 0 32px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .stat-item:first-child { padding-left: 0; }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+
+  .stat-winner { color: var(--green); }
+  .stat-loser { color: var(--red); }
+  .stat-neutral { color: var(--text); }
+
+  .analysis-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    position: relative;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .analysis-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+  }
+
+  .ai-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: rgba(0,230,118,0.1);
+    color: var(--green);
+    border: 1px solid rgba(0,230,118,0.3);
+    padding: 4px 10px;
+  }
+
+  .analysis-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #ccc;
+    white-space: pre-wrap;
+    font-weight: 300;
+  }
+
+  .verdict {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 12px 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    background: rgba(0,230,118,0.05);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    color: var(--muted);
+  }
+
+  .empty-state .big-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state p { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+
+  .error-msg {
+    background: rgba(255,23,68,0.1);
+    border: 1px solid rgba(255,23,68,0.3);
+    color: #ff6b6b;
+    padding: 16px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    margin-top: 48px;
+  }
+
+  @media (max-width: 768px) {
+    main { padding: 40px 24px; }
+    header { padding: 20px 24px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 1fr; gap: 24px; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 24px; }
+    .stat-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .brand-inputs { grid-template-columns: 1fr; }
+    .vs-divider { display: none; }
+    .search-row { flex-direction: column; }
+    .compare-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">BrandScope</div>
+  <div class="status-dot">
+    <div class="dot"></div>
+    <span>MCP SERVER LIVE — 127.0.0.1:8001</span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1 class="hero-title" id="heroTitle">
+      <span class="brand1-text" id="heroB1">NIKE</span>
+      <span class="vs-text">VS</span>
+      <span class="brand2-text" id="heroB2">PUMA</span>
+    </h1>
+    <p>Real-time shopping intelligence</p>
+  </div>
+
+  <!-- ── SEARCH BAR ── -->
+  <div class="search-section">
+    <span class="search-label">Compare any two brands</span>
+    <div class="search-row">
+      <div class="brand-inputs">
+        <div class="brand-input-wrap">
+          <label>Brand 1</label>
+          <input
+            class="brand-input input-brand1"
+            id="brand1Input"
+            type="text"
+            placeholder="NIKE"
+            value="nike"
+            oninput="updateHeroTitle()"
+            onkeydown="handleEnter(event)"
+          />
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="brand-input-wrap">
+          <label>Brand 2</label>
+          <input
+            class="brand-input input-brand2"
+            id="brand2Input"
+            type="text"
+            placeholder="PUMA"
+            value="puma"
+            oninput="updateHeroTitle()"
+            onkeydown="handleEnter(event)"
+          />
+        </div>
+      </div>
+      <button class="compare-btn" id="compareBtn" onclick="runComparison()">
+        COMPARE
+      </button>
+    </div>
+
+    <!-- Quick pick presets -->
+    <div class="quick-picks">
+      <span class="quick-label">Quick:</span>
+      <button class="pill" onclick="setPreset('nike','adidas')">Nike vs Adidas</button>
+      <button class="pill" onclick="setPreset('puma','reebok')">Puma vs Reebok</button>
+      <button class="pill" onclick="setPreset('new balance','asics')">New Balance vs Asics</button>
+      <button class="pill" onclick="setPreset('vans','converse')">Vans vs Converse</button>
+      <button class="pill" onclick="setPreset('nike','puma')">Nike vs Puma</button>
+    </div>
+  </div>
+
+  <div id="errorBox"></div>
+
+  <div class="cards-grid" id="cardsGrid">
+    <div class="brand-card card1">
+      <div class="brand-label"><span id="emptyLabel1">NIKE</span><span class="brand-emoji">⚡</span></div>
+      <div class="empty-state">
+        <div class="big-icon">👟</div>
+        <p>Awaiting data fetch</p>
+      </div>
+    </div>
+    <div class="brand-card card2">
+      <div class="brand-label"><span id="emptyLabel2">PUMA</span><span class="brand-emoji">🐆</span></div>
+      <div class="empty-state">
+        <div class="big-icon">👟</div>
+        <p>Awaiting data fetch</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="statsSection"></div>
+  <div id="analysisSection"></div>
+</main>
+
+<script>
+const API_BASE = "http://127.0.0.1:8002";
+
+function getBrands() {
+  const b1 = document.getElementById("brand1Input").value.trim() || "nike";
+  const b2 = document.getElementById("brand2Input").value.trim() || "puma";
+  return { b1, b2 };
+}
+
+function updateHeroTitle() {
+  const { b1, b2 } = getBrands();
+  document.getElementById("heroB1").textContent = b1.toUpperCase();
+  document.getElementById("heroB2").textContent = b2.toUpperCase();
+}
+
+function setPreset(b1, b2) {
+  document.getElementById("brand1Input").value = b1;
+  document.getElementById("brand2Input").value = b2;
+  updateHeroTitle();
+  runComparison();
+}
+
+function handleEnter(e) {
+  if (e.key === "Enter") runComparison();
+}
+
+async function fetchBrand(brandName) {
+  const res = await fetch(`${API_BASE}/brands/${encodeURIComponent(brandName)}`);
+  if (!res.ok) throw new Error(`Server error ${res.status} — is compserver.py running on port 8002?`);
+  return await res.json();
+}
+
+function showSkeletons(b1, b2) {
+  const skeletonHTML = `
+    <div class="product-list">
+      ${[1,2,3].map(() => `
+        <div class="product-item">
+          <div class="skeleton" style="width:80%;height:14px"></div>
+          <div class="skeleton" style="width:40%;height:14px"></div>
+          <div class="skeleton" style="width:25%;height:14px"></div>
+        </div>
+      `).join('')}
+    </div>`;
+
+  document.getElementById("cardsGrid").innerHTML = `
+    <div class="brand-card card1">
+      <div class="brand-label"><span>${b1.toUpperCase()}</span><span class="brand-emoji">⚡</span></div>
+      ${skeletonHTML}
+    </div>
+    <div class="brand-card card2">
+      <div class="brand-label"><span>${b2.toUpperCase()}</span><span class="brand-emoji">🐆</span></div>
+      ${skeletonHTML}
+    </div>`;
+}
+
+function renderCard(brand, data, cssClass, emoji) {
+  const items = data.map((p, i) => `
+    <div class="product-item" style="animation-delay:${i*0.1}s">
+      <div class="product-title">${p.title || 'N/A'}</div>
+      <div class="product-price">${p.price || '—'}</div>
+      <div class="product-rating">★ ${p.rating || 'N/A'}</div>
+    </div>`).join('');
+
+  return `
+    <div class="brand-card ${cssClass}">
+      <div class="brand-label">
+        <span>${brand.toUpperCase()}</span>
+        <span class="brand-emoji">${emoji}</span>
+      </div>
+      <div class="product-list">${items}</div>
+    </div>`;
+}
+
+function parsePrice(p) {
+  if (!p) return null;
+  const n = parseFloat(p.replace(/[^0-9.]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function parseRating(r) {
+  if (!r) return null;
+  const n = parseFloat(r);
+  return isNaN(n) ? null : n;
+}
+
+function avg(arr) {
+  const valid = arr.filter(x => x !== null);
+  if (!valid.length) return null;
+  return valid.reduce((a, b) => a + b, 0) / valid.length;
+}
+
+function renderStats(b1, b2, data1, data2) {
+  const prices1 = data1.map(p => parsePrice(p.price));
+  const prices2 = data2.map(p => parsePrice(p.price));
+  const ratings1 = data1.map(p => parseRating(p.rating));
+  const ratings2 = data2.map(p => parseRating(p.rating));
+
+  const avgP1 = avg(prices1), avgP2 = avg(prices2);
+  const avgR1 = avg(ratings1), avgR2 = avg(ratings2);
+
+  const cheaper = avgP1 !== null && avgP2 !== null ? (avgP1 < avgP2 ? b1 : b2) : '—';
+  const betterRated = avgR1 !== null && avgR2 !== null ? (avgR1 > avgR2 ? b1 : b2) : '—';
+  const wins1 = (cheaper === b1 ? 1 : 0) + (betterRated === b1 ? 1 : 0);
+  const winner = wins1 >= 1 ? (wins1 === 2 ? b1 : betterRated) : b2;
+
+  return `
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-label">Avg Price — ${b1.toUpperCase()}</div>
+        <div class="stat-value ${cheaper === b1 ? 'stat-winner' : 'stat-loser'}">
+          ${avgP1 !== null ? '$' + avgP1.toFixed(0) : '—'}
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Avg Price — ${b2.toUpperCase()}</div>
+        <div class="stat-value ${cheaper === b2 ? 'stat-winner' : 'stat-loser'}">
+          ${avgP2 !== null ? '$' + avgP2.toFixed(0) : '—'}
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Value Winner</div>
+        <div class="stat-value stat-winner">${winner.toUpperCase()}</div>
+      </div>
+    </div>`;
+}
+
+function renderAnalysis(b1, b2, data1, data2) {
+  const prices1 = data1.map(p => parsePrice(p.price)).filter(x => x !== null);
+  const prices2 = data2.map(p => parsePrice(p.price)).filter(x => x !== null);
+  const ratings1 = data1.map(p => parseRating(p.rating)).filter(x => x !== null);
+  const ratings2 = data2.map(p => parseRating(p.rating)).filter(x => x !== null);
+
+  const avgP1 = avg(prices1), avgP2 = avg(prices2);
+  const avgR1 = avg(ratings1), avgR2 = avg(ratings2);
+
+  let lines = [];
+
+  if (avgP1 && avgP2) {
+    const diff = Math.abs(avgP1 - avgP2).toFixed(0);
+    const cheaper = avgP1 < avgP2 ? b1 : b2;
+    lines.push(`📦 Price Analysis: ${cheaper.toUpperCase()} averages $${diff} less per product.`);
+  }
+
+  if (avgR1 && avgR2) {
+    const higher = avgR1 > avgR2 ? b1 : b2;
+    lines.push(`⭐ Rating Analysis: ${higher.toUpperCase()} holds a higher average customer rating (${avgR1.toFixed(1)} vs ${avgR2.toFixed(1)}).`);
+  }
+
+  if (avgP1 && avgP2 && avgR1 && avgR2) {
+    const score1 = (avgR1 / avgP1) * 100;
+    const score2 = (avgR2 / avgP2) * 100;
+    const winner = score1 > score2 ? b1 : b2;
+    lines.push(`💡 Value Score: ${winner.toUpperCase()} offers better rating-per-dollar, making it the stronger value pick right now.`);
+  }
+
+  const text = lines.length
+    ? lines.join('\n\n')
+    : 'Insufficient data to generate analysis. Some products may be missing prices or ratings.';
+
+  const winner = lines.length >= 3
+    ? (text.includes(b1.toUpperCase() + ' offers better') ? b1.toUpperCase() + ' WINS' : b2.toUpperCase() + ' WINS')
+    : 'ANALYSIS COMPLETE';
+
+  return `
+    <div class="section-label">Analysis</div>
+    <div class="analysis-box">
+      <div class="analysis-header">
+        <span class="analysis-tag">Real-time Data</span>
+        <span class="ai-badge">● LIVE</span>
+      </div>
+      <div class="analysis-text">${text}</div>
+      <div class="verdict">${winner}</div>
+    </div>`;
+}
+
+async function runComparison() {
+  const { b1, b2 } = getBrands();
+  const btn = document.getElementById("compareBtn");
+  const errorBox = document.getElementById("errorBox");
+
+  errorBox.innerHTML = '';
+  btn.disabled = true;
+  btn.textContent = "FETCHING...";
+  updateHeroTitle();
+  showSkeletons(b1, b2);
+  document.getElementById("statsSection").innerHTML = '';
+  document.getElementById("analysisSection").innerHTML = '';
+
+  try {
+    const [data1, data2] = await Promise.all([
+      fetchBrand(b1),
+      fetchBrand(b2)
+    ]);
+
+    document.getElementById("cardsGrid").innerHTML =
+      renderCard(b1, data1, "card1", "⚡") +
+      renderCard(b2, data2, "card2", "🐆");
+
+    document.getElementById("statsSection").innerHTML = renderStats(b1, b2, data1, data2);
+    document.getElementById("analysisSection").innerHTML = renderAnalysis(b1, b2, data1, data2);
+
+    btn.textContent = "COMPARE";
+
+  } catch(err) {
+    errorBox.innerHTML = `<div class="error-msg">⚠ ${err.message}</div>`;
+    document.getElementById("cardsGrid").innerHTML = `
+      <div class="brand-card card1">
+        <div class="brand-label"><span>${b1.toUpperCase()}</span><span class="brand-emoji">⚡</span></div>
+        <div class="empty-state"><div class="big-icon">❌</div><p>Connection failed</p></div>
+      </div>
+      <div class="brand-card card2">
+        <div class="brand-label"><span>${b2.toUpperCase()}</span><span class="brand-emoji">🐆</span></div>
+        <div class="empty-state"><div class="big-icon">❌</div><p>Connection failed</p></div>
+      </div>`;
+    btn.textContent = "RETRY";
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
