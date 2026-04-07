@@ -1,12 +1,12 @@
-# Real-Time-Industry-Insight-Strategic-Intelligence-System
+## Real-Time-Industry-Insight-Strategic-Intelligence-System
 
-Real-Time Industry Insight & Strategic Intelligence System
+## Real-Time Industry Insight & Strategic Intelligence System
 This project is an AI-powered application that provides real-time industry insights by integrating live data from multiple external sources. It helps users analyze market trends, compare brands, and make better decisions using up-to-date information.
 
-Overview
+## Overview
 Traditional AI models rely on static data and may not reflect current market conditions. This system connects AI with real-time APIs such as Google Search, Shopping, and Wikipedia to generate dynamic insights. The application uses a modular architecture with a Streamlit frontend and a FastMCP-based backend to process and display data efficiently.
 
-Features
+## Features
 Real-time market analysis
 Brand comparison (price, ratings, product details)
 Trend analysis using frequency and patterns
