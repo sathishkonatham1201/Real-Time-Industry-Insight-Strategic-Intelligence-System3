@@ -47,10 +47,10 @@ Market trend analysis Business intelligence Brand comparison Competitor analysis
 Future Scope
 More data sources (news, social media) Advanced predictive analytics User authentication Cloud deployment
 
-Author
+## Author
 Developed by Group-1 under the Infosys Springboard initiative.
 
-Project: Real-Time Industry Insight & Strategic Intelligence System
+## Project: Real-Time Industry Insight & Strategic Intelligence System
 
 License
 MIT License
