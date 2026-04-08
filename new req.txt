@@ -1,0 +1,12 @@
+streamlit
+fastmcp
+python-dotenv
+google-search-results
+plotly
+pandas
+fpdf2
+langchain 
+huggingface_hub
+langchain-huggingface
+groq
+httpx
