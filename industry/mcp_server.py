@@ -12,17 +12,18 @@ Tools:
 import os
 import re
 import json
+import streamlit as st
 from collections import Counter
 from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from fastmcp import FastMCP
-from serpapi import GoogleSearch
+from serpapi.google_search import GoogleSearch
 
 # ── Load env (resolve relative to this file so subprocess spawning works) ────
 _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
 load_dotenv(_env_path)
-SERP_KEY = os.getenv("SERP_API_KEY")
+SERP_KEY = st.secrets["SERP_API_KEY"]
 
 # ── FastMCP instance ────────────────────────────────────────────────────────
 mcp = FastMCP("Industry Intelligence Server")
@@ -165,7 +166,7 @@ def get_market_trends(
 @mcp.tool()
 def get_multi_brand_data(
     brand_names_csv: str,
-    product_type: str = "laptops",
+    product_type: str = "shoes",
     num_results: int = 6,
 ) -> dict:
     """
